@@ -7,7 +7,14 @@
 
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { setFlagsFromString } from 'node:v8';
 import { parse } from './parse.js';
+
+// Cold single-pass run: TurboFan's background optimization costs more
+// wall time than it saves when each function runs only a few dozen
+// times, so stay on Maglev/baseline for this run. Ignored if the
+// runtime does not accept the flag; outputs are unaffected either way.
+try { setFlagsFromString('--no-opt'); } catch { /* keep default flags */ }
 
 const INPUT_DIR = process.env.MAKEFUN_INPUT_DIR ?? '/input';
 const OUTPUT_DIR = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
